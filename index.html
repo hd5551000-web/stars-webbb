@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARS WEB | عالم الواقع الافتراضي VR</title>
+    
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js for 3D Graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: #05050d;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* 3D Canvas Background */
+        #webgl-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            z-index: 10;
+            background: rgba(5, 5, 13, 0.4);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        /* Main Content Container */
+        main {
+            position: relative;
+            z-index: 2;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 8%;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-text h1 {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(90deg, #00f2fe, #9b51e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            color: #a0a0b0;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.8);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: #00f2fe;
+            color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        /* Features Cards Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 35px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #00f2fe;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15);
+        }
+
+        .card i {
+            font-size: 40px;
+            color: #00f2fe;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #8a8a9e;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-text h1 { font-size: 38px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Canvas Background -->
+    <div id="webgl-container"></div>
+
+    <!-- Navigation Header -->
+    <nav>
+        <div class="logo">Stars Web</div>
+        <ul class="nav-links">
+            <li><a href="#hero">الرئيسية</a></li>
+            <li><a href="#about">الواقع الافتراضي</a></li>
+            <li><a href="#features">المميزات</a></li>
+            <li><a href="#contact">تواصل معنا</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="hero">
+                <div class="hero-text">
+                    <h1>اكتشف أبعاداً جديدة مع <span>STARS WEB</span></h1>
+                    <p>نُعید تعريف المستقبل عبر تقنيات الواقع الافتراضي (VR). نأخذ عملائك في تجربة رقمية تفاعلية ثلاثية الأبعاد لا تُنسى تتجاوز حدود الواقع التقليدي.</p>
+                    <div class="btn-group">
+                        <a href="#features" class="btn btn-primary">ابدأ التجربة</a>
+                        <a href="#about" class="btn btn-secondary">استكشف المزيد</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VR Features Section -->
+        <section id="features" style="flex-direction: column; justify-content: center;">
+            <h2 style="font-size: 40px; text-align: center; margin-bottom: 10px;">لماذا تقنيات VR مع Stars Web؟</h2>
+            <p style="color: #a0a0b0; text-align: center; margin-bottom: 40px;">حلول افتراضية متكاملة مصممة خصيصاً لنمو أعمالك</p>
+            
+            <div class="features-grid">
+                <div class="card">
+                    <i class="fa-solid fa-vr-cardboard"></i>
+                    <h3>تجارب غامضة ثلاثية الأبعاد</h3>
+                    <p>بيئات افتراضية بدقة فائقة التناغم تعطي المستخدم شعوراً كاملاً بالتواجد الحقيقي.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-cubes"></i>
+                    <h3>تفاعل مجسم وحر</h3>
+                    <p>إمكانية التفاعل الكامل مع العناصر والأجسام ثلاثية الأبعاد بسلاسة واستجابة فورية.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-bolt"></i>
+                    <h3>أداء متطور وفائق</h3>
+                    <p>بناء بيئات تعمل بكفاءة سرعة عالية بدون تقطيع لضمان أفضل تجربة للمستخدم.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2026 جميع الحقوق محفوظة لـ <strong>STARS WEB</strong>
+    </footer>
+
+    <!-- Three.js 3D VR World Animation Script -->
+    <script>
+        // 1. Scene, Camera, Renderer Setup
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // 2. Add Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x00f2fe, 2, 50);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        const purpleLight = new THREE.PointLight(0x9b51e0, 2, 50);
+        purpleLight.position.set(-5, -5, -5);
+        scene.add(purpleLight);
+
+        // 3. Create Main 3D VR Headset Structure (Abstract Futuristic Geometry)
+        const mainGroup = new THREE.Group();
+
+        // Glowing Torus Ring (VR Glass Rim)
+        const torusGeo = new THREE.TorusGeometry(1.5, 0.08, 16, 100);
+        const torusMat = new THREE.MeshStandardMaterial({
+            color: 0x00f2fe,
+            wireframe: true,
+            emissive: 0x00f2fe,
+            emissiveIntensity: 0.5
+        });
+        const torus = new THREE.Mesh(torusGeo, torusMat);
+        mainGroup.add(torus);
+
+        // Core Glowing Crystal Sphere inside VR World
+        const icoGeo = new THREE.IcosahedronGeometry(0.9, 2);
+        const icoMat = new THREE.MeshStandardMaterial({
+            color: 0x9b51e0,
+            roughness: 0.2,
+            metalness: 0.8,
+            wireframe: false
+        });
+        const coreSphere = new THREE.Mesh(icoGeo, icoMat);
+        mainGroup.add(coreSphere);
+
+        // Surrounding Cyber Cube Grid
+        const cubeGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+        const cubeMat = new THREE.MeshBasicMaterial({
+            color: 0x4facfe,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const outerCube = new THREE.Mesh(cubeGeo, cubeMat);
+        mainGroup.add(outerCube);
+
+        scene.add(mainGroup);
+
+        // 4. Create Floating Cyber Particles
+        const particlesCount = 700;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 20;
+        }
+
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0x00f2fe,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        // 5. Interactive Mouse Movement Effect
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) - 0.5;
+            mouseY = (e.clientY / window.innerHeight) - 0.5;
+        });
+
+        // 6. Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Object Rotations
+            mainGroup.rotation.y += 0.008;
+            mainGroup.rotation.x += 0.004;
+
+            coreSphere.rotation.y -= 0.01;
+            outerCube.rotation.z += 0.005;
+
+            particles.rotation.y += 0.0008;
+
+            // Parallax mouse movement smoothness
+            camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 7. Window Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
